@@ -1,24 +1,43 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Monitor Financiero</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Monitor Financiero - Dark Mode</title>
 
 <style>
-body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-.card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 320px; }
-h2 { text-align: center; color: #1a1a1a; margin-top: 0; font-size: 1.4rem; margin-bottom: 20px; }
-.info-box { background: #fdfdfd; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #eee; border-left: 6px solid #27ae60; }
-.cripto-box { border-left-color: #f1c40f; }
-.btc-box { border-left-color: #e67e22; }
-.dominance-box { border-left-color: #9b59b6; } /* Color morado para dominancia */
-.title { font-weight: bold; color: #555; display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-.row { display: flex; justify-content: space-between; font-size: 1.25rem; color: #2ecc71; font-weight: 800; align-items: baseline; }
-.label { color: #888; font-size: 0.7rem; font-weight: 400; display: block; margin-bottom: 2px; }
+/* Configuración de Fondo y Cuerpo */
+body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; /* Azul noche profundo */
+display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #e2e8f0;
+}
+/* Contenedor Principal (Card) */
+.card { background: #1e293b; /* Gris azulado oscuro */
+padding: 25px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 100%; max-width: 340px; border: 1px solid #334155;
+}
+h2 { text-align: center; color: #f8fafc; margin-top: 0; font-size: 1.5rem; margin-bottom: 25px; letter-spacing: -0.5px;
+}
+/* Cajas de Información */
+.info-box { background: #334155; padding: 16px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #475569; border-left: 6px solid #10b981; /* Verde esmeralda */
+transition: transform 0.2s;
+}
+/* Colores de acento laterales */
+.cripto-box { border-left-color: #fbbf24; } /* Amarillo */
+.btc-box { border-left-color: #f97316; } /* Naranja */
+.dominance-box { border-left-color: #a855f7; } /* Púrpura */
+.title { font-weight: 700; color: #94a3b8; display: block; margin-bottom: 10px; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; }
+.label { color: #64748b; font-size: 0.65rem; font-weight: 600; display: block; margin-bottom: 4px; }
 .col { display: flex; flex-direction: column; text-align: center; flex: 1; }
-.valor-num { font-size: 1.4rem; color: #34495e; }
-.estado-texto { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #e67e22; }
-.dom-val { font-size: 1.1rem; color: #2c3e50; font-weight: 700; }
-.loading { text-align: center; color: #999; font-size: 0.9rem; padding: 10px; }
+/* Valores Numéricos */
+.valor-num { font-size: 1.5rem; color: #38bdf8; /* Azul claro brillante */
+font-weight: 800;
+}
+.row-prices {
+color: #4ade80; /* Verde brillante para precios */
+font-size: 1.3rem;
+font-weight: 800;
+}
+.estado-texto { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #fb923c; }
+.dom-val { font-size: 1.1rem; color: #f1f5f9; font-weight: 700; }
+.loading { text-align: center; color: #64748b; font-size: 0.9rem; padding: 10px; }
 </style>
 </head>
 <body>
@@ -42,7 +61,6 @@ h2 { text-align: center; color: #1a1a1a; margin-top: 0; font-size: 1.4rem; margi
 </div>
 </div>
 <script>
-// Función para obtener cotizaciones de dólar
 async function traerDolar(tipo, elementId) {
 try {
 const res = await fetch(`https://dolarapi.com/v1/dolares/${tipo}`);
@@ -51,15 +69,14 @@ const div = document.getElementById(elementId);
 const nombre = tipo === 'blue' ? 'Blue' : 'Cripto';
 div.innerHTML = `
 <span class="title">Dólar ${nombre}</span>
-<div class="row">
+<div class="row row-prices">
 <div class="col"><span class="label">COMPRA</span>$${Math.round(data.compra)}</div>
 <div class="col"><span class="label">VENTA</span>$${Math.round(data.venta)}</div>
 </div>`;
 } catch (e) {
-document.getElementById(elementId).innerHTML = "Error al cargar";
+document.getElementById(elementId).innerHTML = "<div class='loading'>Error de conexión</div>";
 }
 }
-// Nueva función para Dominancia
 async function traerDominancia() {
 try {
 const res = await fetch('https://api.coingecko.com/api/v3/global');
@@ -67,7 +84,6 @@ const json = await res.json();
 const data = json.data.market_cap_percentage;
 const btc = data.btc.toFixed(1);
 const eth = data.eth.toFixed(1);
-// Calculamos Altcoins restando BTC y ETH del total
 const alts = (100 - data.btc - data.eth).toFixed(1);
 const div = document.getElementById('dominance');
 div.innerHTML = `
@@ -78,10 +94,9 @@ div.innerHTML = `
 <div class="col"><span class="label">ALTS</span><span class="dom-val">${alts}%</span></div>
 </div>`;
 } catch (e) {
-document.getElementById('dominance').innerHTML = "Error en Dominancia";
+document.getElementById('dominance').innerHTML = "<div class='loading'>Error API</div>";
 }
 }
-// Función para obtener Fear and Greed
 async function traerFearGreed() {
 try {
 const res = await fetch('https://api.alternative.me/fng/');
@@ -91,11 +106,11 @@ const div = document.getElementById('fg-index');
 div.innerHTML = `
 <span class="title">Sentimiento BTC</span>
 <div class="row">
-<div class="valor-num">${fng.value}/100</div>
+<div class="valor-num">${fng.value}</div>
 <div class="estado-texto">${fng.value_classification}</div>
 </div>`;
 } catch (e) {
-document.getElementById('fg-index').innerHTML = "Error F&G";
+document.getElementById('fg-index').innerHTML = "<div class='loading'>Error API</div>";
 }
 }
 // Llamadas iniciales
