@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Monitor Financiero</title>
+
+<style>
+body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 320px; }
+h2 { text-align: center; color: #1a1a1a; margin-top: 0; font-size: 1.4rem; margin-bottom: 20px; }
+.info-box { background: #fdfdfd; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #eee; border-left: 6px solid #27ae60; }
+.cripto-box { border-left-color: #f1c40f; }
+.btc-box { border-left-color: #e67e22; }
+.dominance-box { border-left-color: #9b59b6; } /* Color morado para dominancia */
+.title { font-weight: bold; color: #555; display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+.row { display: flex; justify-content: space-between; font-size: 1.25rem; color: #2ecc71; font-weight: 800; align-items: baseline; }
+.label { color: #888; font-size: 0.7rem; font-weight: 400; display: block; margin-bottom: 2px; }
+.col { display: flex; flex-direction: column; text-align: center; flex: 1; }
+.valor-num { font-size: 1.4rem; color: #34495e; }
+.estado-texto { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: #e67e22; }
+.dom-val { font-size: 1.1rem; color: #2c3e50; font-weight: 700; }
+.loading { text-align: center; color: #999; font-size: 0.9rem; padding: 10px; }
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Monitor En Vivo</h2>
+<div id="blue" class="info-box">
+<span class="title">Dólar Blue</span>
+<div class="loading">Cargando...</div>
+</div>
+<div id="cripto" class="info-box cripto-box">
+<span class="title">Dólar Cripto (USDT)</span>
+<div class="loading">Cargando...</div>
+</div>
+<div id="dominance" class="info-box dominance-box">
+<span class="title">Dominancia del Mercado</span>
+<div class="loading">Cargando...</div>
+</div>
+<div id="fg-index" class="info-box btc-box">
+<span class="title">BTC Fear &amp; Greed Index</span>
+<div class="loading">Cargando...</div>
+</div>
+</div>
+<script>
+// Función para obtener cotizaciones de dólar
+async function traerDolar(tipo, elementId) {
+try {
+const res = await fetch(`https://dolarapi.com/v1/dolares/${tipo}`);
+const data = await res.json();
+const div = document.getElementById(elementId);
+const nombre = tipo === 'blue' ? 'Blue' : 'Cripto';
+div.innerHTML = `
+<span class="title">Dólar ${nombre}</span>
+<div class="row">
+<div class="col"><span class="label">COMPRA</span>$${Math.round(data.compra)}</div>
+<div class="col"><span class="label">VENTA</span>$${Math.round(data.venta)}</div>
+</div>`;
+} catch (e) {
+document.getElementById(elementId).innerHTML = "Error al cargar";
+}
+}
+// Nueva función para Dominancia
+async function traerDominancia() {
+try {
+const res = await fetch('https://api.coingecko.com/api/v3/global');
+const json = await res.json();
+const data = json.data.market_cap_percentage;
+const btc = data.btc.toFixed(1);
+const eth = data.eth.toFixed(1);
+// Calculamos Altcoins restando BTC y ETH del total
+const alts = (100 - data.btc - data.eth).toFixed(1);
+const div = document.getElementById('dominance');
+div.innerHTML = `
+<span class="title">Dominancia de Mercado</span>
+<div class="row">
+<div class="col"><span class="label">BTC</span><span class="dom-val">${btc}%</span></div>
+<div class="col"><span class="label">ETH</span><span class="dom-val">${eth}%</span></div>
+<div class="col"><span class="label">ALTS</span><span class="dom-val">${alts}%</span></div>
+</div>`;
+} catch (e) {
+document.getElementById('dominance').innerHTML = "Error en Dominancia";
+}
+}
+// Función para obtener Fear and Greed
+async function traerFearGreed() {
+try {
+const res = await fetch('https://api.alternative.me/fng/');
+const data = await res.json();
+const fng = data.data[0];
+const div = document.getElementById('fg-index');
+div.innerHTML = `
+<span class="title">Sentimiento BTC</span>
+<div class="row">
+<div class="valor-num">${fng.value}/100</div>
+<div class="estado-texto">${fng.value_classification}</div>
+</div>`;
+} catch (e) {
+document.getElementById('fg-index').innerHTML = "Error F&G";
+}
+}
+// Llamadas iniciales
+traerDolar('blue', 'blue');
+traerDolar('cripto', 'cripto');
+traerDominancia();
+traerFearGreed();
+</script>
+</body></html>
