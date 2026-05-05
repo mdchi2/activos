@@ -7,15 +7,26 @@
     <title>Watchlist Dinámica - Texto Plano</title>
     <style>
         body {
-            font-family: monospace;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
             white-space: pre-wrap;
-            background-color: #000;
-            color: #fff;
-            padding: 20px;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            padding: 30px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             margin: 0;
             overflow-x: auto;
+        }
+        .pos { color: #00ff88; font-weight: bold; }
+        .neg { color: #ff4444; font-weight: bold; }
+        #monitor {
+            background: #111;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: inline-block;
+            min-width: fit-content;
         }
     </style>
 </head>
@@ -74,15 +85,19 @@
                             maximumFractionDigits: coin.current_price < 1 ? 4 : 2
                         });
 
-                        // Función helper para porcentajes
-                        const formatPct = (val) => {
-                            if (val === null || val === undefined) return "N/A";
-                            return (val > 0 ? "+" : "") + val.toFixed(2) + "%";
+                        // Función helper para porcentajes con color
+                        const formatPct = (val, pad) => {
+                            if (val === null || val === undefined) return "N/A".padStart(pad);
+                            const valStr = (val > 0 ? "+" : "") + val.toFixed(2) + "%";
+                            const colorClass = val > 0 ? "pos" : (val < 0 ? "neg" : "");
+                            const padded = valStr.padStart(pad);
+                            if (!colorClass) return padded;
+                            return padded.replace(valStr, `<span class="${colorClass}">${valStr}</span>`);
                         };
 
-                        let ch1Str = formatPct(coin.price_change_percentage_1h_in_currency);
-                        let ch24Str = formatPct(coin.price_change_percentage_24h_in_currency);
-                        let ch7Str = formatPct(coin.price_change_percentage_7d_in_currency);
+                        let ch1Str = formatPct(coin.price_change_percentage_1h_in_currency, 8);
+                        let ch24Str = formatPct(coin.price_change_percentage_24h_in_currency, 8);
+                        let ch7Str = formatPct(coin.price_change_percentage_7d_in_currency, 8);
 
                         let mcapStr = "$" + formatLargeNum(coin.market_cap);
                         let volStr = "$" + formatLargeNum(coin.total_volume);
@@ -92,9 +107,9 @@
                         const nameSym = `${coinReq.name} (${coinReq.symbol})`;
                         output += nameSym.padEnd(20);
                         output += priceStr.padStart(12) + "  ";
-                        output += ch1Str.padStart(8) + "  ";
-                        output += ch24Str.padStart(8) + "  ";
-                        output += ch7Str.padStart(8) + "  ";
+                        output += ch1Str + "  ";
+                        output += ch24Str + "  ";
+                        output += ch7Str + "  ";
                         output += mcapStr.padStart(10) + "  ";
                         output += volStr.padStart(10) + "  ";
                         output += supplyStr.padStart(15) + "\n";
@@ -123,7 +138,7 @@
 
         function renderContent() {
             if (lastOutput) {
-                document.getElementById('monitor').innerText = lastOutput + `\nPróxima actualización en: ${formatTime(timeLeft)}`;
+                document.getElementById('monitor').innerHTML = lastOutput + `\nPróxima actualización en: ${formatTime(timeLeft)}`;
             }
         }
 
