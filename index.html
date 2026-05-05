@@ -1,152 +1,83 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Monitor Cripto y Dólar</title>
+<!DOCTYPE html>
+<html>
 
-<style>
-body {
-font-family: 'Segoe UI', Roboto, sans-serif;
-background-color: #0f172a;
-display: flex;
-justify-content: center;
-align-items: center;
-min-height: 100vh;
-margin: 0;
-color: #e2e8f0;
-padding: 20px 0;
-}
-.card {
-background: #1e293b;
-padding: 25px;
-border-radius: 24px;
-box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-width: 100%;
-max-width: 340px;
-border: 1px solid #334155;
-}
-h2 {
-text-align: center;
-color: #f8fafc;
-margin-top: 0;
-font-size: 1.5rem;
-margin-bottom: 25px;
-}
-.info-box {
-background: #334155;
-padding: 16px;
-border-radius: 16px;
-margin-bottom: 15px;
-border: 1px solid #475569;
-border-left: 6px solid #10b981;
-}
-.blue-box { border-left-color: #38bdf8; }
-.dominance-box { border-left-color: #a855f7; }
-.btc-box { border-left-color: #f97316; }
-.alt-box { border-left-color: #ec4899; }
-.title {
-font-weight: 700;
-color: #94a3b8;
-display: block;
-margin-bottom: 10px;
-text-transform: uppercase;
-font-size: 0.7rem;
-letter-spacing: 1px;
-}
-.row { display: flex; justify-content: space-between; align-items: baseline; }
-.label { color: #94a3b8; font-size: 0.65rem; font-weight: 600; display: block; margin-bottom: 4px; }
-.col { display: flex; flex-direction: column; text-align: center; flex: 1; }
-.valor-num { font-size: 1.5rem; color: #f1f5f9; font-weight: 800; }
-.row-prices { color: #4ade80; font-size: 1.4rem; font-weight: 800; }
-.estado-texto { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
-.dom-val { font-size: 1.1rem; color: #f1f5f9; font-weight: 700; }
-.loading { text-align: center; color: #64748b; font-size: 0.8rem; padding: 5px; }
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Cripto y Dólar - Texto Plano</title>
+    <style>
+        body {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+    </style>
 </head>
+
 <body>
-<div class="card">
-<h2>Monitor En Vivo</h2>
-<!-- 1. Dólar Blue -->
-<div id="blue" class="info-box blue-box">
-<span class="title">Dólar Blue</span>
-<div class="loading">Cargando...</div>
-</div>
-<!-- 2. Dominancia -->
-<div id="dominance" class="info-box dominance-box">
-<span class="title">Dominancia del Mercado</span>
-<div class="loading">Cargando...</div>
-</div>
-<!-- 3. F&G Bitcoin -->
-<div id="fg-crypto" class="info-box btc-box">
-<span class="title">Fear &amp; Greed Bitcoin</span>
-<div class="loading">Cargando...</div>
-</div>
-<!-- 4. Altcoin Season -->
-<div id="alt-season" class="info-box alt-box">
-<span class="title">Altcoin Season Index</span>
-<div class="loading">Calculando...</div>
-</div>
-</div>
-<script>
-async function traerDolarBlue() {
-try {
-const res = await fetch('https://dolarapi.com/v1/dolares/blue');
-const data = await res.json();
-document.getElementById('blue').innerHTML = `
-<span class="title">Dólar Blue</span>
-<div class="row row-prices">
-<div class="col"><span class="label">COMPRA</span>$${Math.round(data.compra)}</div>
-<div class="col"><span class="label">VENTA</span>$${Math.round(data.venta)}</div>
-</div>`;
-} catch (e) { document.getElementById('blue').innerHTML = "Error Dólar"; }
-}
-async function traerCriptoDatos() {
-try {
-const res = await fetch('https://api.coingecko.com/api/v3/global');
-const json = await res.json();
-const d = json.data.market_cap_percentage;
-const btcDom = d.btc;
-document.getElementById('dominance').innerHTML = `
-<span class="title">Dominancia de Mercado</span>
-<div class="row">
-<div class="col"><span class="label">BTC</span><span class="dom-val">${btcDom.toFixed(1)}%</span></div>
-<div class="col"><span class="label">ETH</span><span class="dom-val">${d.eth.toFixed(1)}%</span></div>
-<div class="col"><span class="label">ALTS</span><span class="dom-val">${(100 - btcDom - d.eth).toFixed(1)}%</span></div>
-</div>`;
-// Cálculo estimado de Altseason basado en dominancia de BTC[cite: 1]
-let altIndex = Math.round(100 - ((btcDom - 35) * 3.33));
-if(altIndex > 100) altIndex = 100; if(altIndex < 0) altIndex = 0;
-let l = altIndex >= 75 ? "Altcoin Season" : (altIndex <= 35 ? "Bitcoin Season" : "Neutral");
-let c = altIndex >= 75 ? "#4ade80" : (altIndex <= 35 ? "#f97316" : "#f1f5f9");
-document.getElementById('alt-season').innerHTML = `
-<span class="title">Altcoin Season Index</span>
-<div class="row">
-<div class="valor-num" style="color: ${c}">${altIndex}</div>
-<div class="estado-texto" style="color: ${c}">${l}</div>
-</div>`;
-} catch (e) { console.error(e); }
-}
-async function traerFearGreedBitcoin() {
-try {
-const res = await fetch('https://api.alternative.me/fng/?limit=1');
-const data = await res.json();
-const val = data.data[0].value;
-const label = data.data[0].value_classification;
-let color = val <= 35 ? "#ef4444" : (val >= 65 ? "#4ade80" : "#fbbf24");
-document.getElementById('fg-crypto').innerHTML = `
-<span class="title">Fear & Greed Bitcoin</span>
-<div class="row">
-<div class="valor-num" style="color: ${color}">${val}</div>
-<div class="estado-texto" style="color: ${color}">${label}</div>
-</div>`;
-} catch (e) { document.getElementById('fg-crypto').innerHTML = "Error Bitcoin API"; }
-}
-async function cargarTodo() {
-traerDolarBlue();
-traerCriptoDatos();
-traerFearGreedBitcoin();
-}
-cargarTodo();
-// Refresco automático cada 5 minutos
-setInterval(cargarTodo, 300000);
-</script>
-</body></html>
+    <div id="monitor">Cargando datos...</div>
+
+    <script>
+        async function traerDolarBlue() {
+            try {
+                const res = await fetch('https://dolarapi.com/v1/dolares/blue');
+                const data = await res.json();
+                return `Dólar Blue:\n  Compra: $${Math.round(data.compra)}\n  Venta:  $${Math.round(data.venta)}`;
+            } catch (e) { return "Dólar Blue: Error al cargar"; }
+        }
+
+        async function traerCriptoDatos() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/global');
+                const json = await res.json();
+                const d = json.data.market_cap_percentage;
+                const btcDom = d.btc;
+                const ethDom = d.eth;
+                const altsDom = 100 - btcDom - ethDom;
+
+                let altIndex = Math.round(100 - ((btcDom - 35) * 3.33));
+                if (altIndex > 100) altIndex = 100; if (altIndex < 0) altIndex = 0;
+                let l = altIndex >= 75 ? "Altcoin Season" : (altIndex <= 35 ? "Bitcoin Season" : "Neutral");
+
+                return `Dominancia de Mercado:\n  BTC:  ${btcDom.toFixed(1)}%\n  ETH:  ${ethDom.toFixed(1)}%\n  ALTS: ${altsDom.toFixed(1)}%\n\nAltcoin Season Index:\n  ${altIndex} - ${l}`;
+            } catch (e) { return "Datos Cripto: Error al cargar"; }
+        }
+
+        async function traerFearGreedBitcoin() {
+            try {
+                const res = await fetch('https://api.alternative.me/fng/?limit=1');
+                const data = await res.json();
+                const val = data.data[0].value;
+                const label = data.data[0].value_classification;
+                return `Fear & Greed Bitcoin:\n  ${val} - ${label}`;
+            } catch (e) { return "Fear & Greed: Error al cargar"; }
+        }
+
+        async function cargarTodo() {
+            document.getElementById('monitor').innerText = "Cargando datos...";
+
+            const [dolar, cripto, fg] = await Promise.all([
+                traerDolarBlue(),
+                traerCriptoDatos(),
+                traerFearGreedBitcoin()
+            ]);
+
+            document.getElementById('monitor').innerText =
+                "=== MONITOR EN VIVO ===\n\n" +
+                dolar + "\n\n" +
+                cripto + "\n\n" +
+                fg + "\n\n" +
+                "=======================\n" +
+                "Última act: " + new Date().toLocaleTimeString();
+        }
+
+        cargarTodo();
+        setInterval(cargarTodo, 300000);
+    </script>
+</body>
+
+</html>
