@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +19,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="monitor">Cargando datos de la Watchlist...</div>
 
@@ -35,7 +37,7 @@
             if (num >= 1e12) return (num / 1e12).toFixed(2) + "T";
             if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
             if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
-            return num.toLocaleString('en-US', {maximumFractionDigits: 0});
+            return num.toLocaleString('en-US', { maximumFractionDigits: 0 });
         }
 
         let lastOutput = "";
@@ -47,9 +49,9 @@
                 // Usar endpoint 'markets' para obtener supply, vol y porcentajes extra
                 const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&price_change_percentage=1h,24h,7d`);
                 const data = await res.json();
-                
+
                 let output = "=== WATCHLIST DE COINMARKETCAP ===\n\n";
-                
+
                 // Construir Cabeceras
                 output += "Moneda".padEnd(20);
                 output += "Precio".padStart(12) + "  ";
@@ -59,19 +61,19 @@
                 output += "MarketCap".padStart(10) + "  ";
                 output += "Vol(24h)".padStart(10) + "  ";
                 output += "Circ. Supply".padStart(15) + "\n";
-                
+
                 // Separador
                 output += "-".repeat(101) + "\n";
-                
+
                 coins.forEach(coinReq => {
                     const coin = data.find(c => c.id === coinReq.id);
                     if (coin) {
                         // Formatear precio (2 decimales para altos, 4 para bajos)
                         let priceStr = "$" + coin.current_price.toLocaleString('en-US', {
-                            minimumFractionDigits: coin.current_price < 1 ? 4 : 2, 
+                            minimumFractionDigits: coin.current_price < 1 ? 4 : 2,
                             maximumFractionDigits: coin.current_price < 1 ? 4 : 2
                         });
-                        
+
                         // Función helper para porcentajes
                         const formatPct = (val) => {
                             if (val === null || val === undefined) return "N/A";
@@ -81,11 +83,11 @@
                         let ch1Str = formatPct(coin.price_change_percentage_1h_in_currency);
                         let ch24Str = formatPct(coin.price_change_percentage_24h_in_currency);
                         let ch7Str = formatPct(coin.price_change_percentage_7d_in_currency);
-                        
+
                         let mcapStr = "$" + formatLargeNum(coin.market_cap);
                         let volStr = "$" + formatLargeNum(coin.total_volume);
                         let supplyStr = formatLargeNum(coin.circulating_supply) + " " + coinReq.symbol;
-                        
+
                         // Construir fila alineada
                         const nameSym = `${coinReq.name} (${coinReq.symbol})`;
                         output += nameSym.padEnd(20);
@@ -100,13 +102,12 @@
                         output += `${coinReq.name} (${coinReq.symbol}) - Datos no disponibles\n`;
                     }
                 });
-                
+
                 output += "\n=====================================================================================================\n";
-                output += "Última act: " + new Date().toLocaleTimeString();
-                
                 lastOutput = output;
+
                 renderContent();
-                
+
             } catch (e) {
                 lastOutput = "Error al cargar los datos.\nPuede deberse a límites de la API, intente en un momento.";
                 renderContent();
@@ -114,15 +115,21 @@
             }
         }
 
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
         function renderContent() {
             if (lastOutput) {
-                document.getElementById('monitor').innerText = lastOutput + `\nPróxima actualización en: ${timeLeft}s`;
+                document.getElementById('monitor').innerText = lastOutput + `\nPróxima actualización en: ${formatTime(timeLeft)}`;
             }
         }
 
         // Carga inicial
         fetchWatchlist();
-        
+
         // Actualizar el contador y hacer fetch cuando llegue a 0
         setInterval(() => {
             timeLeft--;
@@ -135,4 +142,5 @@
         }, 1000);
     </script>
 </body>
+
 </html>
