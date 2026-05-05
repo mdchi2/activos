@@ -39,7 +39,28 @@
         const coins = [
             { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin' },
             { id: 'ethereum', symbol: 'ETH', name: 'Ethereum' },
-            { id: 'tether', symbol: 'USDT', name: 'Tether' }
+            { id: 'tether', symbol: 'USDT', name: 'Tether' },
+            { id: 'binancecoin', symbol: 'BNB', name: 'BNB' },
+            { id: 'solana', symbol: 'SOL', name: 'Solana' },
+            { id: 'avalanche-2', symbol: 'AVAX', name: 'Avalanche' },
+            { id: 'sui', symbol: 'SUI', name: 'Sui' },
+            { id: 'mantle', symbol: 'MNT', name: 'Mantle' },
+            { id: 'arbitrum', symbol: 'ARB', name: 'Arbitrum' },
+            { id: 'nexo', symbol: 'NEXO', name: 'Nexo' },
+            { id: 'aerodrome-finance', symbol: 'AERO', name: 'Aerodrome Finance' },
+            { id: 'ronin', symbol: 'RON', name: 'Ronin' },
+            { id: 'momentum-3', symbol: 'MMT', name: 'Momentum' },
+            { id: 'thena', symbol: 'THE', name: 'THENA' },
+            { id: 'ripple', symbol: 'XRP', name: 'XRP' },
+            { id: 'monero', symbol: 'XMR', name: 'Monero' },
+            { id: 'bittensor', symbol: 'TAO', name: 'Bittensor' },
+            { id: 'kaspa', symbol: 'KAS', name: 'Kaspa' },
+            { id: 'plasma', symbol: 'XPL', name: 'Plasma' },
+            { id: 'linea', symbol: 'LINEA', name: 'Linea' },
+            { id: 'chia', symbol: 'XCH', name: 'Chia' },
+            { id: 'xpin-network', symbol: 'XPIN', name: 'XPIN Network' },
+            { id: 'klever', symbol: 'KLV', name: 'Klever Coin' },
+            { id: 'foxy', symbol: 'FOXY', name: 'Foxy' }
         ];
 
         // Función para acortar números grandes (ej: 1.5T, 20B)
@@ -61,10 +82,10 @@
                 const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&price_change_percentage=1h,24h,7d`);
                 const data = await res.json();
 
-                let output = "=== WATCHLIST DE COINMARKETCAP ===\n\n";
+                let output = "";
 
                 // Construir Cabeceras
-                output += "Moneda".padEnd(20);
+                output += "Moneda".padEnd(28);
                 output += "Precio".padStart(12) + "  ";
                 output += "1h".padStart(8) + "  ";
                 output += "24h".padStart(8) + "  ";
@@ -74,9 +95,13 @@
                 output += "Circ. Supply".padStart(15) + "\n";
 
                 // Separador
-                output += "-".repeat(101) + "\n";
+                output += "-".repeat(109) + "\n";
 
-                coins.forEach(coinReq => {
+                // Ordenar por Market Cap descending
+                const capMap = new Map(data.map(c => [c.id, c.market_cap || 0]));
+                const sortedCoins = [...coins].sort((a, b) => (capMap.get(b.id) || 0) - (capMap.get(a.id) || 0));
+
+                sortedCoins.forEach(coinReq => {
                     const coin = data.find(c => c.id === coinReq.id);
                     if (coin) {
                         // Formatear precio (2 decimales para altos, 4 para bajos)
@@ -105,7 +130,7 @@
 
                         // Construir fila alineada
                         const nameSym = `${coinReq.name} (${coinReq.symbol})`;
-                        output += nameSym.padEnd(20);
+                        output += nameSym.padEnd(28);
                         output += priceStr.padStart(12) + "  ";
                         output += ch1Str + "  ";
                         output += ch24Str + "  ";
@@ -118,7 +143,7 @@
                     }
                 });
 
-                output += "\n=====================================================================================================\n";
+                output += "\n=====================================================================================================================\n";
                 lastOutput = output;
 
                 renderContent();
