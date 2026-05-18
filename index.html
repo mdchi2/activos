@@ -138,6 +138,7 @@
                 output += "7d".padStart(8) + "  ";
                 output += "MarketCap".padStart(10) + "  ";
                 output += "Vol(24h)".padStart(10) + "  ";
+                output += "Vol/MCap".padStart(10) + "  ";
                 output += "Circ. Supply".padStart(15) + "\n";
 
 
@@ -170,6 +171,11 @@
 
                         let mcapStr = "$" + formatLargeNum(coin.market_cap);
                         let volStr = "$" + formatLargeNum(coin.total_volume);
+                        let volMcStr = "N/A";
+                        if (coin.market_cap && coin.total_volume) {
+                            let ratio = (coin.total_volume / coin.market_cap) * 100;
+                            volMcStr = ratio.toFixed(2) + "%";
+                        }
                         let supplyStr = formatLargeNum(coin.circulating_supply) + " " + coinReq.symbol;
 
                         // Construir fila alineada
@@ -181,6 +187,7 @@
                         output += ch7Str + "  ";
                         output += mcapStr.padStart(10) + "  ";
                         output += volStr.padStart(10) + "  ";
+                        output += volMcStr.padStart(10) + "  ";
                         output += supplyStr.padStart(15) + "\n";
                     } else {
                         output += `${coinReq.name} (${coinReq.symbol}) - Datos no disponibles\n`;
