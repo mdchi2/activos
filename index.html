@@ -74,7 +74,6 @@
         }
 
         let lastOutput = "";
-        let timeLeft = 600; // 10 minutos en segundos
 
         async function traerDolarBlue() {
             try {
@@ -209,31 +208,18 @@
             }
         }
 
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
+
 
         function renderContent() {
             if (lastOutput) {
-                document.getElementById('monitor').innerHTML = lastOutput + `Próxima actualización en: ${formatTime(timeLeft)}`;
+                document.getElementById('monitor').innerHTML = lastOutput;
             }
         }
 
         // Carga inicial
         fetchWatchlist();
 
-        // Actualizar el contador y hacer fetch cuando llegue a 0
-        setInterval(() => {
-            timeLeft--;
-            if (timeLeft <= 0) {
-                timeLeft = 600; // Reiniciar a 10 minutos
-                fetchWatchlist();
-            } else {
-                renderContent();
-            }
-        }, 1000);
+
     </script>
 </body>
 
