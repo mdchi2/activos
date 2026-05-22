@@ -8,6 +8,9 @@ echo Por favor, asegurate de haber cambiado WifiName por el nombre de tu red.
 echo Presiona Ctrl+C en cualquier momento para detener el script.
 echo.
 
+rem Desactivar el cartel de advertencia de Windows 7 en Chrome
+reg add "HKCU\Software\Policies\Google\Chrome" /v SuppressUnsupportedOSWarning /t REG_DWORD /d 1 /f >nul 2>&1
+
 :loop
 echo [%TIME%] Conectando a la red Wi-Fi '%WifiName%'...
 netsh wlan connect name="%WifiName%" >nul
