@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300">
     <title>Watchlist Dinámica - Texto Plano</title>
     <style>
         body {
@@ -207,19 +208,32 @@
                 console.error(e);
             }
         }
+        let timeLeft = 300; // 5 minutos en segundos
 
-
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
 
         function renderContent() {
             if (lastOutput) {
-                document.getElementById('monitor').innerHTML = lastOutput;
+                document.getElementById('monitor').innerHTML = lastOutput + `\nPróxima actualización en: ${formatTime(timeLeft)}`;
             }
         }
 
         // Carga inicial
         fetchWatchlist();
 
-
+        // Actualizar el contador y refrescar al llegar a 0
+        setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                location.reload();
+            } else {
+                renderContent();
+            }
+        }, 1000);
     </script>
 </body>
 
